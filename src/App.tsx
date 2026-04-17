@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore } from './store/useStore';
 import { useShare } from './hooks/useShare';
+import { useTheme } from './hooks/useTheme';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { Dashboard } from './components/dashboard/Dashboard';
@@ -12,6 +13,7 @@ type Panel = 'dashboard' | 'project';
 export default function App() {
   const { projects, version, settings } = useStore();
   const { sharedState, copyShareLink, clearSharedState } = useShare();
+  useTheme();
 
   const [activePanel, setActivePanel] = useState<Panel>('dashboard');
   const [activeProjectId, setActiveProjectId] = useState<string | null>(
