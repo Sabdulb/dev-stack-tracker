@@ -51,6 +51,12 @@ export default function App() {
   return (
     <TooltipProvider>
     <div className="min-h-screen flex flex-col bg-canvas text-fg">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-accent-fg focus:shadow-md focus:outline-none"
+      >
+        Skip to content
+      </a>
       <Header
         activePanel={activePanel}
         activeProject={activeProject}
@@ -72,7 +78,7 @@ export default function App() {
           onSelectDashboard={() => { setActivePanel('dashboard'); setSidebarOpen(false); }}
           mobileOpen={sidebarOpen}
         />
-        <main className="flex-1 overflow-y-auto flex flex-col">
+        <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto flex flex-col">
           {activePanel === 'dashboard' ? (
             <Dashboard onSelectProject={handleSelectProject} />
           ) : (

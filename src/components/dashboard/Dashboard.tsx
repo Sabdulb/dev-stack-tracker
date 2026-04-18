@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../../store/useStore';
 import {
   formatCurrency,
@@ -24,6 +24,18 @@ interface DashboardProps {
 export function Dashboard({ onSelectProject }: DashboardProps) {
   const { projects, settings } = useStore();
   const [showNewProject, setShowNewProject] = useState(false);
+  const totalRef = useRef<HTMLDivElement>(null);
+  const prevCurrencyRef = useRef(settings.currency);
+
+  useEffect(() => {
+    if (prevCurrencyRef.current === settings.currency) return;
+    prevCurrencyRef.current = settings.currency;
+    const el = totalRef.current;
+    if (!el) return;
+    el.classList.remove('animate-pulse-soft');
+    void el.offsetWidth;
+    el.classList.add('animate-pulse-soft');
+  }, [settings.currency]);
 
   const grandTotal = grandMonthlyTotal(projects);
   const allServices = projects.flatMap((p) => p.services);
@@ -84,7 +96,10 @@ export function Dashboard({ onSelectProject }: DashboardProps) {
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-fg-subtle">
               Total monthly spend
             </p>
-            <div className="font-mono text-6xl font-semibold tracking-tight text-fg">
+            <div
+              ref={totalRef}
+              className="font-mono text-6xl font-semibold tracking-tight text-fg"
+            >
               {formatCurrency(grandTotal, settings.currency)}
               <span className="ml-2 align-middle text-2xl font-normal text-fg-muted">
                 /mo

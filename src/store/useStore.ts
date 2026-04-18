@@ -193,11 +193,7 @@ export const useStore = create<Store>()(
     {
       name: 'dev-stack-tracker',
       version: 1,
-      migrate: (persisted, _version) => {
-        // Future migrations go here:
-        // if (_version === 0) { persisted = migrateV0toV1(persisted); }
-        return persisted as Store;
-      },
+      migrate: (persisted) => persisted as Store,
     }
   )
 );

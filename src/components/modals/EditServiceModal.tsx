@@ -1,8 +1,18 @@
-import { useState, useEffect } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
+import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { CATEGORIES } from '../../types';
 import type { Service } from '../../types';
+import {
+  Button,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  Input,
+  Select,
+  Textarea,
+} from '../ui';
 
 interface EditServiceModalProps {
   open: boolean;
@@ -11,20 +21,23 @@ interface EditServiceModalProps {
   service: Service;
 }
 
-export function EditServiceModal({
-  open,
+export function EditServiceModal(props: EditServiceModalProps) {
+  return (
+    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+      {props.open && <EditServiceForm key={props.service.id} {...props} />}
+    </Dialog>
+  );
+}
+
+function EditServiceForm({
   onOpenChange,
   projectId,
   service,
 }: EditServiceModalProps) {
   const { updateService, settings } = useStore();
-  const [form, setForm] = useState({ ...service });
+  const [form, setForm] = useState<Service>({ ...service });
 
-  useEffect(() => {
-    setForm({ ...service });
-  }, [service]);
-
-  function set(field: keyof Service, value: string | number) {
+  function set<K extends keyof Service>(field: K, value: Service[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
@@ -43,126 +56,109 @@ export function EditServiceModal({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg bg-white rounded-xl shadow-xl p-6 max-h-[90vh] overflow-y-auto">
-          <Dialog.Title className="text-lg font-semibold text-gray-900 mb-4">
-            Edit Service
-          </Dialog.Title>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => set('name', e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
+    <DialogContent size="md">
+      <DialogHeader title="Edit service" />
+      <form onSubmit={handleSubmit}>
+        <DialogBody className="space-y-3">
+          <Field label="Name *">
+            <Input
+              value={form.name}
+              onChange={(e) => set('name', e.target.value)}
+              required
+              autoFocus
+            />
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={`Cost (${settings.currency})`}>
+              <Input
+                type="number"
+                value={form.cost}
+                onChange={(e) => set('cost', parseFloat(e.target.value) || 0)}
+                min="0"
+                step="0.01"
               />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Cost ({settings.currency})
-                </label>
-                <input
-                  type="number"
-                  value={form.cost}
-                  onChange={(e) => set('cost', parseFloat(e.target.value) || 0)}
-                  min="0"
-                  step="0.01"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Billing Cycle
-                </label>
-                <select
-                  value={form.billingCycle}
-                  onChange={(e) => set('billingCycle', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                  <option value="one-time">One-time</option>
-                </select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
-                </label>
-                <select
-                  value={form.category}
-                  onChange={(e) => set('category', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tier
-                </label>
-                <input
-                  type="text"
-                  value={form.tier ?? ''}
-                  onChange={(e) => set('tier', e.target.value)}
-                  placeholder="Free, Pro, Pay-as-you-go…"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL
-              </label>
-              <input
-                type="url"
-                value={form.url ?? ''}
-                onChange={(e) => set('url', e.target.value)}
-                placeholder="https://dashboard.example.com"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes
-              </label>
-              <textarea
-                value={form.notes ?? ''}
-                onChange={(e) => set('notes', e.target.value)}
-                rows={2}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-              />
-            </div>
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            </Field>
+            <Field label="Billing cycle">
+              <Select
+                value={form.billingCycle}
+                onChange={(e) =>
+                  set('billingCycle', e.target.value as Service['billingCycle'])
+                }
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+                <option value="one-time">One-time</option>
+              </Select>
+            </Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Category">
+              <Select
+                value={form.category}
+                onChange={(e) => set('category', e.target.value)}
               >
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Tier">
+              <Input
+                value={form.tier ?? ''}
+                onChange={(e) => set('tier', e.target.value)}
+                placeholder="Free, Pro…"
+              />
+            </Field>
+          </div>
+          <Field label="URL">
+            <Input
+              type="url"
+              value={form.url ?? ''}
+              onChange={(e) => set('url', e.target.value)}
+              placeholder="https://…"
+            />
+          </Field>
+          <Field label="Notes">
+            <Textarea
+              value={form.notes ?? ''}
+              onChange={(e) => set('notes', e.target.value)}
+              rows={2}
+            />
+          </Field>
+        </DialogBody>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" size="sm">
+            Save changes
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-fg-subtle">
+        {label}
+      </span>
+      {children}
+    </label>
   );
 }

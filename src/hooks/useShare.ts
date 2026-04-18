@@ -1,19 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { AppState } from '../types';
 import { decodeStateFromHash, encodeStateToHash } from '../utils/share';
 
-export function useShare() {
-  const [sharedState, setSharedState] = useState<AppState | null>(null);
+function readSharedStateFromHash(): AppState | null {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash;
+  if (!hash.startsWith('#share=')) return null;
+  return decodeStateFromHash(hash);
+}
 
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith('#share=')) {
-      const decoded = decodeStateFromHash(hash);
-      if (decoded) {
-        setSharedState(decoded);
-      }
-    }
-  }, []);
+export function useShare() {
+  const [sharedState, setSharedState] = useState<AppState | null>(
+    readSharedStateFromHash
+  );
 
   function copyShareLink(state: AppState) {
     const hash = encodeStateToHash(state);
