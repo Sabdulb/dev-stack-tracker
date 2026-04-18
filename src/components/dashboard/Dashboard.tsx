@@ -104,7 +104,7 @@ export function Dashboard({ onSelectProject }: DashboardProps) {
               )}
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <KpiTile
                 label="Top category"
                 value={topCategory?.category ?? '—'}
@@ -123,16 +123,11 @@ export function Dashboard({ onSelectProject }: DashboardProps) {
                     : '—'
                 }
               />
-              <KpiTile
-                label="vs last month"
-                value="—"
-                sub="History coming soon"
-              />
             </div>
           </div>
 
           {categorySegments.length > 0 && (
-            <aside className="hidden lg:block">
+            <aside className="hidden self-end lg:block">
               <Card className="p-5">
                 <p className="mb-3 text-[11px] font-medium uppercase tracking-wide text-fg-subtle">
                   By category
