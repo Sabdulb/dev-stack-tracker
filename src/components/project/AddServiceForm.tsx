@@ -2,6 +2,14 @@ import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { CATEGORIES } from '../../types';
 import type { Service } from '../../types';
+import {
+  Button,
+  cn,
+  Icon,
+  Input,
+  Select,
+  Textarea,
+} from '../ui';
 
 interface AddServiceFormProps {
   projectId: string;
@@ -23,8 +31,9 @@ export function AddServiceForm({ projectId }: AddServiceFormProps) {
   const { addService, settings } = useStore();
   const [form, setForm] = useState<FormState>(defaultForm);
   const [expanded, setExpanded] = useState(false);
+  const [moreDetails, setMoreDetails] = useState(false);
 
-  function set(field: keyof FormState, value: string | number) {
+  function set<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
@@ -41,6 +50,13 @@ export function AddServiceForm({ projectId }: AddServiceFormProps) {
       notes: form.notes?.trim() || undefined,
     });
     setForm(defaultForm);
+    setMoreDetails(false);
+    setExpanded(false);
+  }
+
+  function handleCancel() {
+    setForm(defaultForm);
+    setMoreDetails(false);
     setExpanded(false);
   }
 
@@ -48,9 +64,16 @@ export function AddServiceForm({ projectId }: AddServiceFormProps) {
     return (
       <button
         onClick={() => setExpanded(true)}
-        className="w-full py-3 text-sm text-indigo-600 hover:bg-indigo-50 border-t border-gray-100 transition-colors"
+        className={cn(
+          'flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3',
+          'text-sm font-medium text-fg-muted',
+          'transition-colors duration-150',
+          'hover:border-accent hover:bg-accent-subtle hover:text-accent',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
+        )}
       >
-        + Add Service
+        <Icon name="plus" size={14} />
+        Add Service
       </button>
     );
   }
@@ -58,101 +81,126 @@ export function AddServiceForm({ projectId }: AddServiceFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-t border-gray-100 p-4 bg-gray-50 space-y-3"
+      className="rounded-lg border border-dashed border-border bg-surface p-4"
     >
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+      <p className="mb-3 text-[11px] font-medium uppercase tracking-wide text-fg-subtle">
         Add Service
       </p>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-gray-600 mb-1">Name *</label>
-          <input
-            type="text"
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <Field label="Name *">
+          <Input
             value={form.name}
             onChange={(e) => set('name', e.target.value)}
             placeholder="Vercel Pro"
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             autoFocus
+            required
           />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-600 mb-1">Cost ({settings.currency})</label>
-          <input
+        </Field>
+        <Field label={`Cost (${settings.currency})`}>
+          <Input
             type="number"
             value={form.cost}
             onChange={(e) => set('cost', parseFloat(e.target.value) || 0)}
             min="0"
             step="0.01"
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-gray-600 mb-1">Billing Cycle</label>
-          <select
+        </Field>
+        <Field label="Billing Cycle">
+          <Select
             value={form.billingCycle}
-            onChange={(e) => set('billingCycle', e.target.value)}
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            onChange={(e) =>
+              set('billingCycle', e.target.value as FormState['billingCycle'])
+            }
           >
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
             <option value="one-time">One-time</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-600 mb-1">Category</label>
-          <select
+          </Select>
+        </Field>
+        <Field label="Category">
+          <Select
             value={form.category}
             onChange={(e) => set('category', e.target.value)}
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Field>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-gray-600 mb-1">Tier</label>
-          <input
-            type="text"
-            value={form.tier ?? ''}
-            onChange={(e) => set('tier', e.target.value)}
-            placeholder="Free, Pro…"
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+
+      <button
+        type="button"
+        onClick={() => setMoreDetails((v) => !v)}
+        className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-fg-muted hover:text-fg"
+      >
+        <Icon
+          name="chevron-down"
+          size={12}
+          className={cn('transition-transform', moreDetails && 'rotate-180')}
+        />
+        {moreDetails ? 'Hide' : 'More details'}
+      </button>
+
+      {moreDetails && (
+        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+          <Field label="Tier">
+            <Input
+              value={form.tier ?? ''}
+              onChange={(e) => set('tier', e.target.value)}
+              placeholder="Free, Pro…"
+            />
+          </Field>
+          <Field label="URL">
+            <Input
+              type="url"
+              value={form.url ?? ''}
+              onChange={(e) => set('url', e.target.value)}
+              placeholder="https://…"
+            />
+          </Field>
+          <div className="md:col-span-2">
+            <Field label="Notes">
+              <Textarea
+                value={form.notes ?? ''}
+                onChange={(e) => set('notes', e.target.value)}
+                rows={2}
+                placeholder="Optional notes"
+              />
+            </Field>
+          </div>
         </div>
-        <div>
-          <label className="block text-xs text-gray-600 mb-1">URL</label>
-          <input
-            type="url"
-            value={form.url ?? ''}
-            onChange={(e) => set('url', e.target.value)}
-            placeholder="https://…"
-            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-      </div>
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => { setForm(defaultForm); setExpanded(false); }}
-          className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-        >
+      )}
+
+      <div className="mt-4 flex items-center justify-end gap-2">
+        <Button variant="ghost" size="sm" onClick={handleCancel}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={!form.name.trim()}
-          className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
+        </Button>
+        <Button type="submit" size="sm" disabled={!form.name.trim()}>
+          <Icon name="plus" size={14} />
           Add Service
-        </button>
+        </Button>
       </div>
     </form>
+  );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-fg-subtle">
+        {label}
+      </span>
+      {children}
+    </label>
   );
 }

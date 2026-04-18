@@ -7,6 +7,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { ProjectView } from './components/project/ProjectView';
 import { ImportModal } from './components/modals/ImportModal';
+import { TooltipProvider } from './components/ui';
 
 type Panel = 'dashboard' | 'project';
 
@@ -43,7 +44,12 @@ export default function App() {
     alert('Share link copied to clipboard!');
   }
 
+  function handleBackToDashboard() {
+    setActivePanel('dashboard');
+  }
+
   return (
+    <TooltipProvider>
     <div className="min-h-screen flex flex-col bg-canvas text-fg">
       <Header
         activePanel={activePanel}
@@ -73,6 +79,7 @@ export default function App() {
             <ProjectView
               projectId={activeProjectId}
               onProjectDeleted={handleProjectDeleted}
+              onBackToDashboard={handleBackToDashboard}
             />
           )}
         </main>
@@ -101,5 +108,6 @@ export default function App() {
         />
       )}
     </div>
+    </TooltipProvider>
   );
 }
