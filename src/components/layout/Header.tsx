@@ -1,6 +1,20 @@
 import type { AppState, Project } from '../../types';
 import { useStore } from '../../store/useStore';
 import { exportProjectToJSON } from '../../utils/importExport';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Icon,
+  IconButton,
+  ThemeToggle,
+} from '../ui';
+
+const CURRENCIES: AppState['settings']['currency'][] = ['USD', 'EUR', 'GBP'];
 
 interface HeaderProps {
   activePanel: 'dashboard' | 'project';
@@ -10,63 +24,99 @@ interface HeaderProps {
   onMenuClick: () => void;
 }
 
-export function Header({ activePanel, activeProject, onImportClick, onShareClick, onMenuClick }: HeaderProps) {
+export function Header({
+  activePanel,
+  activeProject,
+  onImportClick,
+  onShareClick,
+  onMenuClick,
+}: HeaderProps) {
   const { settings, setCurrency, exportState } = useStore();
 
-  function handleExport() {
-    if (activePanel === 'project' && activeProject) {
-      exportProjectToJSON(activeProject);
-    } else {
-      exportState();
-    }
+  function handleExportAll() {
+    exportState();
   }
 
-  const exportLabel = activePanel === 'project' && activeProject
-    ? 'Export Project'
-    : 'Export';
+  function handleExportProject() {
+    if (activeProject) exportProjectToJSON(activeProject);
+  }
+
+  const canExportProject = activePanel === 'project' && activeProject !== null;
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-30 flex h-[52px] items-center justify-between gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur md:px-6">
       <div className="flex items-center gap-2">
-        <button
+        <IconButton
+          icon="menu"
+          label="Toggle menu"
+          size="sm"
+          className="md:hidden"
           onClick={onMenuClick}
-          className="md:hidden p-1.5 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
-          aria-label="Toggle menu"
+        />
+        <div
+          aria-hidden="true"
+          className="flex h-5 w-5 items-center justify-center rounded-sm bg-accent text-accent-fg"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <span className="text-xl font-bold text-gray-900">Dev Stack Tracker</span>
+          <Icon name="layout" size={12} />
+        </div>
+        <span className="text-sm font-semibold tracking-tight text-fg">
+          Dev Stack Tracker
+        </span>
       </div>
-      <div className="flex items-center gap-3">
-        <select
-          value={settings.currency}
-          onChange={(e) => setCurrency(e.target.value as AppState['settings']['currency'])}
-          className="text-sm border border-gray-200 rounded-md px-2 py-1.5 bg-white text-gray-700 cursor-pointer"
-        >
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="GBP">GBP</option>
-        </select>
-        <button
-          onClick={handleExport}
-          className="text-sm px-3 py-1.5 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          {exportLabel}
-        </button>
-        <button
-          onClick={onImportClick}
-          className="text-sm px-3 py-1.5 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          Import
-        </button>
-        <button
-          onClick={onShareClick}
-          className="text-sm px-3 py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-        >
-          Share
-        </button>
+
+      <div className="flex items-center gap-1.5">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              {settings.currency}
+              <Icon name="chevron-down" size={12} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Currency</DropdownMenuLabel>
+            {CURRENCIES.map((c) => (
+              <DropdownMenuItem key={c} onSelect={() => setCurrency(c)}>
+                <span className="flex-1">{c}</span>
+                {settings.currency === c && (
+                  <Icon name="check" size={14} className="text-accent" />
+                )}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" aria-label="Import and export">
+              <Icon name="download" size={14} />
+              <span className="hidden sm:inline">Data</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onSelect={onImportClick}>
+              <Icon name="upload" size={14} />
+              Import JSON
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={handleExportAll}>
+              <Icon name="download" size={14} />
+              Export all
+            </DropdownMenuItem>
+            {canExportProject && (
+              <DropdownMenuItem onSelect={handleExportProject}>
+                <Icon name="download" size={14} />
+                Export this project
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button size="sm" onClick={onShareClick}>
+          <Icon name="share" size={14} />
+          <span className="hidden sm:inline">Share</span>
+        </Button>
+
+        <ThemeToggle />
       </div>
     </header>
   );

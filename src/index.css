@@ -1,1 +1,167 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", monospace;
+
+  --color-canvas: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-muted: #f4f4f5;
+  --color-border: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+  --color-fg: #0a0a0a;
+  --color-fg-muted: #52525b;
+  --color-fg-subtle: #a1a1aa;
+
+  --color-accent: #4f46e5;
+  --color-accent-fg: #ffffff;
+  --color-accent-hover: #4338ca;
+  --color-accent-subtle: #eef2ff;
+
+  --color-success: #10b981;
+  --color-success-subtle: #ecfdf5;
+  --color-warn: #f59e0b;
+  --color-warn-subtle: #fffbeb;
+  --color-danger: #ef4444;
+  --color-danger-subtle: #fef2f2;
+
+  --color-cat-infra: #d97706;
+  --color-cat-storage: #2563eb;
+  --color-cat-api: #8b5cf6;
+  --color-cat-auth: #ca8a04;
+  --color-cat-email: #059669;
+  --color-cat-hosting: #6366f1;
+  --color-cat-database: #0d9488;
+  --color-cat-cicd: #db2777;
+  --color-cat-other: #71717a;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --shadow-xs: 0 1px 0 0 rgb(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05), 0 0 0 1px rgb(0 0 0 / 0.03);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08),
+    0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.08);
+
+  --animate-fade-scale-in: fade-scale-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-out: fade-out 150ms ease-out;
+  --animate-slide-in-left: slide-in-left 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-pulse-soft: pulse-soft 300ms ease-out;
+}
+
+.dark {
+  --color-canvas: #0a0a0b;
+  --color-surface: #141417;
+  --color-surface-raised: #1c1c20;
+  --color-surface-muted: #1f1f23;
+  --color-border: #27272a;
+  --color-border-strong: #3f3f46;
+  --color-fg: #fafafa;
+  --color-fg-muted: #a1a1aa;
+  --color-fg-subtle: #71717a;
+
+  --color-accent: #818cf8;
+  --color-accent-fg: #09090b;
+  --color-accent-hover: #a5b4fc;
+  --color-accent-subtle: rgb(99 102 241 / 0.14);
+
+  --color-success: #34d399;
+  --color-success-subtle: rgb(16 185 129 / 0.12);
+  --color-warn: #fbbf24;
+  --color-warn-subtle: rgb(245 158 11 / 0.12);
+  --color-danger: #f87171;
+  --color-danger-subtle: rgb(239 68 68 / 0.12);
+
+  --color-cat-infra: #fb923c;
+  --color-cat-storage: #60a5fa;
+  --color-cat-api: #a78bfa;
+  --color-cat-auth: #fbbf24;
+  --color-cat-email: #34d399;
+  --color-cat-hosting: #818cf8;
+  --color-cat-database: #2dd4bf;
+  --color-cat-cicd: #f472b6;
+  --color-cat-other: #a1a1aa;
+
+  --shadow-xs: 0 1px 0 0 rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+  --shadow-lg: 0 16px 32px -8px rgb(0 0 0 / 0.6),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@keyframes fade-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
