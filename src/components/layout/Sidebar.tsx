@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
-import { projectMonthlyTotal, formatCurrency } from '../../utils/calculations';
+import {
+  formatCurrency,
+  grandMonthlyTotal,
+  projectMonthlyTotal,
+} from '../../utils/calculations';
 import { NewProjectModal } from '../modals/NewProjectModal';
+import { cn, Icon, IconButton } from '../ui';
 
 interface SidebarProps {
   activeProjectId: string | null;
@@ -21,63 +26,142 @@ export function Sidebar({
   const { projects, settings } = useStore();
   const [showNewProject, setShowNewProject] = useState(false);
 
+  const totalLabel = `${formatCurrency(
+    grandMonthlyTotal(projects),
+    settings.currency
+  )}/mo`;
+
+  const isDashboardActive = activePanel === 'dashboard';
+
   return (
-    <aside className={`w-56 shrink-0 border-r border-gray-200 bg-gray-50 flex flex-col fixed inset-y-0 top-[65px] z-40 transition-transform duration-200 md:static md:translate-x-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-      <nav className="flex-1 overflow-y-auto py-4">
-        {/* Dashboard link */}
-        <button
-          onClick={onSelectDashboard}
-          className={`w-full text-left px-4 py-2 text-sm font-medium transition-colors ${
-            activePanel === 'dashboard'
-              ? 'bg-indigo-50 text-indigo-700'
-              : 'text-gray-700 hover:bg-gray-100'
-          }`}
-        >
-          Dashboard
-        </button>
+    <>
+      <aside
+        className={cn(
+          'fixed inset-y-0 top-[52px] z-40 flex w-60 shrink-0 flex-col',
+          'border-r border-border bg-surface',
+          'transition-transform duration-200 md:static md:translate-x-0',
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <nav className="flex-1 overflow-y-auto px-2 py-3">
+          <SidebarRow
+            active={isDashboardActive}
+            onClick={onSelectDashboard}
+            label="Overview"
+            trailing={
+              <span className="font-mono text-[11px] text-fg-subtle">
+                {totalLabel}
+              </span>
+            }
+          />
 
-        <div className="mt-4 px-4 pb-1">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Projects
-          </span>
-        </div>
+          <div className="mt-5 flex items-center justify-between px-3 pb-1">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-fg-subtle">
+              Projects
+            </span>
+            <IconButton
+              icon="plus"
+              label="New project"
+              size="sm"
+              iconSize={12}
+              className="h-6 w-6"
+              onClick={() => setShowNewProject(true)}
+            />
+          </div>
 
-        {projects.map((project) => (
-          <button
-            key={project.id}
-            onClick={() => onSelectProject(project.id)}
-            className={`w-full text-left px-4 py-2 transition-colors ${
-              activePanel === 'project' && activeProjectId === project.id
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {project.color && (
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: project.color }}
+          {projects.length === 0 ? (
+            <div className="px-3 py-4 text-xs text-fg-subtle">
+              No projects yet.
+            </div>
+          ) : (
+            projects.map((project) => {
+              const isActive =
+                activePanel === 'project' && activeProjectId === project.id;
+              return (
+                <SidebarRow
+                  key={project.id}
+                  active={isActive}
+                  onClick={() => onSelectProject(project.id)}
+                  leading={
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-xs"
+                      style={{
+                        backgroundColor: project.color ?? 'var(--color-border-strong)',
+                      }}
+                    />
+                  }
+                  label={project.name}
+                  trailing={
+                    <span className="font-mono text-[11px] text-fg-subtle">
+                      {formatCurrency(
+                        projectMonthlyTotal(project),
+                        settings.currency
+                      )}
+                    </span>
+                  }
                 />
-              )}
-              <span className="text-sm truncate">{project.name}</span>
-            </div>
-            <div className="text-xs text-gray-400 mt-0.5 pl-4">
-              {formatCurrency(projectMonthlyTotal(project), settings.currency)}/mo
-            </div>
-          </button>
-        ))}
-      </nav>
+              );
+            })
+          )}
+        </nav>
 
-      <div className="p-4 border-t border-gray-200">
-        <button
-          onClick={() => setShowNewProject(true)}
-          className="w-full text-sm py-2 rounded-md border border-dashed border-gray-300 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition-colors"
-        >
-          + New Project
-        </button>
-      </div>
+        <div className="border-t border-border p-3">
+          <button
+            onClick={() => setShowNewProject(true)}
+            className={cn(
+              'flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-border px-3 py-1.5',
+              'text-xs font-medium text-fg-muted',
+              'transition-colors duration-150',
+              'hover:border-accent hover:text-accent'
+            )}
+          >
+            <Icon name="plus" size={12} />
+            New Project
+          </button>
+        </div>
+      </aside>
 
       <NewProjectModal open={showNewProject} onOpenChange={setShowNewProject} />
-    </aside>
+    </>
+  );
+}
+
+interface SidebarRowProps {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  leading?: React.ReactNode;
+  trailing?: React.ReactNode;
+}
+
+function SidebarRow({
+  active,
+  onClick,
+  label,
+  leading,
+  trailing,
+}: SidebarRowProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'group relative flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-left',
+        'transition-colors duration-150',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+        active
+          ? 'bg-accent-subtle text-accent'
+          : 'text-fg hover:bg-surface-muted'
+      )}
+    >
+      {active && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-accent"
+        />
+      )}
+      {leading}
+      <span className="flex-1 truncate text-sm font-medium">{label}</span>
+      {trailing}
+    </button>
   );
 }

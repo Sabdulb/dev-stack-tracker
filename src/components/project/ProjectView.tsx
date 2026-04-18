@@ -74,12 +74,10 @@ export function ProjectView({ projectId, onProjectDeleted }: ProjectViewProps) {
               </form>
             ) : (
               <div className="flex items-center gap-2">
-                {project.color && (
-                  <span
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: project.color }}
-                  />
-                )}
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: project.color ?? 'var(--color-border-strong)' }}
+                />
                 <h1 className="text-xl font-bold text-gray-900">{project.name}</h1>
                 <button
                   onClick={startEditName}
@@ -94,10 +92,10 @@ export function ProjectView({ projectId, onProjectDeleted }: ProjectViewProps) {
             )}
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-fg">
               {formatCurrency(monthly, settings.currency)}/mo
             </div>
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="text-xs text-fg-muted mt-0.5">
               {project.services.length} service{project.services.length !== 1 ? 's' : ''}
             </div>
           </div>

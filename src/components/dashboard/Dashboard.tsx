@@ -17,14 +17,14 @@ export function Dashboard({ onSelectProject }: DashboardProps) {
     <div className="flex-1 overflow-y-auto p-6">
       {/* Grand total */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
+        <h2 className="text-sm font-semibold text-fg-muted uppercase tracking-wider mb-2">
           Total Monthly Spend
         </h2>
-        <div className="text-4xl font-bold text-gray-900">
+        <div className="text-4xl font-bold text-fg">
           {formatCurrency(grandTotal, settings.currency)}
-          <span className="text-lg font-normal text-gray-400">/mo</span>
+          <span className="text-lg font-normal text-fg-muted">/mo</span>
         </div>
-        <p className="text-sm text-gray-400 mt-1">
+        <p className="text-sm text-fg-muted mt-1">
           {formatCurrency(grandTotal * 12, settings.currency)}/yr across{' '}
           {projects.length} project{projects.length !== 1 ? 's' : ''}
         </p>

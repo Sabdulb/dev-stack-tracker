@@ -44,7 +44,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-canvas text-fg">
       <Header
         activePanel={activePanel}
         activeProject={activeProject}
@@ -52,11 +52,10 @@ export default function App() {
         onShareClick={handleShareClick}
         onMenuClick={() => setSidebarOpen((prev) => !prev)}
       />
-      <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(100vh - 65px)' }}>
-        {/* Mobile backdrop */}
+      <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(100vh - 52px)' }}>
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/30 z-30 md:hidden"
+            className="fixed inset-0 top-[52px] bg-black/40 z-30 md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}

@@ -27,12 +27,10 @@ export function ProjectSummary({ project, currency, onSelect }: ProjectSummaryPr
       className="text-left p-5 rounded-xl border border-gray-200 bg-white hover:border-indigo-300 hover:shadow-sm transition-all"
     >
       <div className="flex items-center gap-2 mb-3">
-        {project.color && (
-          <span
-            className="w-3 h-3 rounded-full shrink-0"
-            style={{ backgroundColor: project.color }}
-          />
-        )}
+        <span
+          className="w-3 h-3 rounded-full shrink-0"
+          style={{ backgroundColor: project.color ?? 'var(--color-border-strong)' }}
+        />
         <span className="font-semibold text-gray-900 truncate">{project.name}</span>
       </div>
 
